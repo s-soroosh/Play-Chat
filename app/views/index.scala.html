@@ -1,0 +1,88 @@
+@(message: String)(implicit request: RequestHeader)
+
+    @main("Welcome to Play") {
+
+        <script type="text/javascript">
+        var nickName = "" ;
+
+        function send(){
+        sendMessage($('#message' ).val())
+        $('#message').val("")
+        }
+        function initEvents ( ) {
+                $ ( '#submitNickName' ).click ( function ( ) {
+                        nickName = $ ( '#nickName' ).val ( )
+                        $ ('#nickNameContainer').hide ('slow') ;
+                        $ ('#nickNamePlaceHolder').text (nickName) ;
+                        $ ('#chatroomContainer').show ('slow');
+                        startChat(nickName);
+
+        } )
+
+               $('#send' ).click(function(){
+               sendMessage ( $ ( '#message' ).val ( ) )
+               $ ( '#message' ).val ( "" )
+               })
+                $('#message' ).keyup(function(key){
+                    if(key.keyCode == 13) {
+                        send()
+                    }
+                })
+        }
+        var ws
+        var startChat = function(name) {
+            var url = "@routes.Application.chatSocket("VARIABLE").webSocketURL()".replace("VARIABLE",name)
+            window.alert(url)
+            ws = new WebSocket(url)
+
+            ws.onmessage =function(msg){
+            var msgContainter = $('#messageContainer')
+            msgContainter.append(
+            "<div>"+msg.data+"</div>")
+            }
+
+            msgContainter.scrollTop(999999)
+
+        }
+        var sendMessage = function(msg) {
+            if(ws && ws != null) {
+                ws.send(msg)
+            }
+        }
+
+
+
+        var init = function ( ) {
+            $('#chatroomContainer' ).hide();
+        } ;
+
+        $ (function(){
+            init();
+            initEvents();
+        } )
+
+        </script>
+
+        <div style="width: 100%;" id="chatroomContainer">
+            <h1>Hello <span id="nickNamePlaceHolder"></span></h1>
+            <div style="width: 100%;">
+                <div style="width:100%; height: 300px; overflow: scroll; border:chocolate 2px solid;"  id="messageContainer" ></div>
+            </div>
+            <div>
+                <textarea id="message"  style="width:100%; height: 100px;" ></textarea>
+                <br />
+                <input type="submit" id="send" />
+            </div>
+
+        </div>
+        <div id="nickNameContainer">
+            <label>
+                Nick Name:
+            </label>
+            <input type="text" id="nickName">
+            <input type="button" value="Login" id="submitNickName" />
+        </div>
+
+
+
+    }
